@@ -9,10 +9,10 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class ChaseAmazon(Scraper):
+class ChaseScraper(Scraper):
 
     def get_transactions(self, username, password):
-        log.info("Initiating scrape for ChaseAmazon.")
+        log.info("Initiating scrape for ChaseScraper.")
         rows = self._get_activity(username, password)
 
         log.info("Got %d rows from scraping." % len(rows))

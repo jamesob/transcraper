@@ -2,13 +2,13 @@
 from unittest import TestCase
 from nose.tools import eq_
 
-from transcraper.scrapers.chase_amazon import ChaseAmazon
+from transcraper.scrapers import ChaseScraper
 
 
 class ChaseScraperTest(TestCase):
 
     def setUp(self):
-        self.s = ChaseAmazon('fake', 'pwd')
+        self.s = ChaseScraper('fake', 'pwd')
 
     def test_row_conversion(self):
         rows = [[u'09/03/2012', u'', u'Pending', u'TWC*TIME WARNER NYC', u'',

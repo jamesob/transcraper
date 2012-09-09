@@ -1,12 +1,12 @@
 import getpass
-from transcraper.scrapers import ChaseAmazon
+from transcraper.scrapers import ChaseScraper
 from transcraper.storage import MongoTransactions
 
 import logging
 log = logging.getLogger(__name__)
 
 
-def from_cmdline(ScraperClass=ChaseAmazon,
+def from_cmdline(ScraperClass=ChaseScraper,
                  DatastoreClass=MongoTransactions):
     uname = raw_input("Username: ")
     passwd = getpass.getpass("password: ")
