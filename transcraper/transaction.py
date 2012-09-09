@@ -22,6 +22,7 @@ class Transaction(object):
         self.amount = Decimal(amount).quantize(Decimal("0.01"))
         self.occurred_at = occurred_at
         self.source = source
+        self.tags = []
 
     @property
     def as_dict(self):

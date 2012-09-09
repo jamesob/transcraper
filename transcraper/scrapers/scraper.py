@@ -3,6 +3,7 @@ Abstract base class for scrapers.
 """
 
 import abc
+from selenium import webdriver
 
 
 class Scraper(object):
@@ -22,6 +23,10 @@ class Scraper(object):
         """
         pass
 
+    def _clean_amount(self, amount):
+        """Clean incoming amount strings."""
+        return amount.replace('$', '').replace(',', '')
+
     @property
     def id(self):
         """Provide a source identifier (str) for this scraper."""
@@ -29,4 +34,24 @@ class Scraper(object):
         institution_name = self.__class__.__name__
 
         return "%s@%s" % (safe_username, institution_name)
+
+
+class SeleniumScraper(Scraper):
+
+    homepage_url = None
+    cookies = []
+
+    def __init__(self, username, password):
+        super(SeleniumScraper, self).__init__(username, password)
+        self.driver = webdriver.Firefox()
+
+        self.driver.get(self.homepage_url)
+
+    def _goto_link(self, text):
+        """Follow a link with a WebDriver."""
+        l = self.driver.find_element_by_partial_link_text(text)
+        self.driver.get(l.get_attribute('href'))
+
+    def close(self):
+        self.driver.quit()
 

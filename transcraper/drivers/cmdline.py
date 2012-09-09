@@ -1,5 +1,5 @@
 import getpass
-from transcraper.scrapers import ChaseScraper
+from transcraper.scrapers import ChaseScraper, AllyScraper
 from transcraper.storage import MongoTransactions
 
 import logging
@@ -10,15 +10,22 @@ def from_cmdline(ScraperClass=ChaseScraper,
                  DatastoreClass=MongoTransactions):
     uname = raw_input("Username: ")
     passwd = getpass.getpass("password: ")
+    transactions = []
 
     sc = ScraperClass(uname, passwd)
     store = DatastoreClass()
 
-    transactions = sc.get_transactions(uname, passwd)
-    num_saved = store.save(transactions)
+    try:
+        transactions = sc.get_transactions(uname, passwd)
+    except Exception as e:
+        print e
+    finally:
+        sc.close()
+
+    if transactions:
+        num_saved = store.save(transactions)
 
     print "Saved %d new transactions." % num_saved
 
-
 if __name__ == '__main__':
-    from_cmdline()
+    from_cmdline(ScraperClass=AllyScraper)

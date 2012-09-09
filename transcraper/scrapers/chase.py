@@ -1,15 +1,16 @@
-from selenium import webdriver
 import datetime
 import time
 
-from .scraper import Scraper
+from .scraper import SeleniumScraper
 from transcraper import Transaction
 
 import logging
 log = logging.getLogger(__name__)
 
 
-class ChaseScraper(Scraper):
+class ChaseScraper(SeleniumScraper):
+
+    homepage_url = "http://www.chase.com"
 
     def get_transactions(self, username, password):
         log.info("Initiating scrape for ChaseScraper.")
@@ -30,35 +31,26 @@ class ChaseScraper(Scraper):
              u'NITEHAWK CINEMA THEATR', u'', u'$32.00']
         """
         occurred_at = datetime.datetime.strptime(r[0], '%m/%d/%Y')
-        amount = r[5].replace('$', '')
+        amount = self._clean_amount(r[5])
 
         return Transaction(name=r[3],
                            occurred_at=occurred_at,
                            amount=amount,
                            source=self.id)
 
-    def _get_chase_amazon_driver(self, username, password):
-        """Return a logged-in Chase Amazon card selenium driver instance."""
-        driver = webdriver.Firefox()
-        driver.get("http://www.chase.com")
-
+    def _login(self, username, password):
+        """Log in with selenium."""
         time.sleep(2)
 
-        inputElement = driver.find_element_by_id("usr_name")
+        inputElement = self.driver.find_element_by_id("usr_name")
         inputElement.send_keys(username)
 
-        pwdElement = driver.find_element_by_id("usr_password")
+        pwdElement = self.driver.find_element_by_id("usr_password")
         pwdElement.send_keys(password)
 
         pwdElement.submit()
-        return driver
 
-    def _goto_link(self, driver, text):
-        """Follow a link with a WebDriver."""
-        l = driver.find_element_by_partial_link_text(text)
-        driver.get(l.get_attribute('href'))
-
-    def _get_recent_activity_rows(self, chase_driver):
+    def _get_recent_activity_rows(self):
         """Return the 25 most recent CC transactions, plus any pending
         transactions.
 
@@ -66,9 +58,10 @@ class ChaseScraper(Scraper):
             A list of lists containing the columns of the Chase transaction
             list.
         """
-        self._goto_link(chase_driver, "See activity")
+        self._goto_link("See activity")
+        time.sleep(2)
 
-        rows = chase_driver.find_elements_by_css_selector("tr.summary")
+        rows = self.driver.find_elements_by_css_selector("tr.summary")
         trans_list = []
 
         for row in rows:
@@ -82,14 +75,14 @@ class ChaseScraper(Scraper):
         """For a given username, retrieve recent account activity for
         a Chase CC."""
         rows = None
-        d = self._get_chase_amazon_driver(username, password)
-        time.sleep(8)
+        self._login(username, password)
+        time.sleep(4)
 
         try:
-            rows = self._get_recent_activity_rows(d)
+            rows = self._get_recent_activity_rows()
         except Exception, e:
             print e
         finally:
-            d.quit()
+            self.driver.quit()
 
         return rows
