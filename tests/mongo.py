@@ -7,7 +7,7 @@ from transcraper.storage import MongoTransactions
 from transcraper import Transaction
 
 
-class ChaseScraperTest(TestCase):
+class MongoTransactionsTest(TestCase):
 
     def setUp(self):
         self.now = datetime.datetime.utcnow()
